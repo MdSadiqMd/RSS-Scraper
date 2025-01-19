@@ -10,7 +10,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pg"
+	_ "github.com/lib/pq"
 )
 
 type apiConfig struct {
@@ -51,6 +51,7 @@ func main() {
 	v1Router := chi.NewRouter()
 	v1Router.Get("/healthz", handlerReadiness)
 	v1Router.Get("/error", handlerError)
+	v1Router.Post("/users", apiConfig.handleCreateUser)
 
 	router.Mount("/v1", v1Router)
 
