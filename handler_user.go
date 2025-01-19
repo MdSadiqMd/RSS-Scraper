@@ -31,5 +31,5 @@ func (apiCfg *apiConfig) handleCreateUser(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	respondWithJSON(w, 201, user)
+	respondWithJSON(w, 201, databaseUserToUser(user))
 }
