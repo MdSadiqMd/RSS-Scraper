@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/MdSadiqMd/RSS-Scraper/internal/database"
+	"github.com/go-chi/chi"
 	"github.com/google/uuid"
 )
 
@@ -43,4 +44,24 @@ func (apiCfg *apiConfig) handleGetFeedFollows(w http.ResponseWriter, r *http.Req
 	}
 
 	respondWithJSON(w, 200, databaseFeedFollowsToFeedFollows(follows))
+}
+
+func (apiCfg *apiConfig) handleDeleteFeedFollow(w http.ResponseWriter, r *http.Request, user database.User) {
+	feedFollowIdStr := chi.URLParam(r, "feed_id")
+	feedFollowId, err := uuid.Parse(feedFollowIdStr)
+	if err != nil {
+		respondWithError(w, 400, "Invalid feed follow id")
+		return
+	}
+
+	err = apiCfg.DB.DeleteFeedFollow(r.Context(), database.DeleteFeedFollowParams{
+		ID:     feedFollowId,
+		UserID: user.ID,
+	})
+	if err != nil {
+		respondWithError(w, 400, "Unable to delete feed follow: "+err.Error())
+		return
+	}
+
+	respondWithJSON(w, 200, map[string]string{"status": "deleted"})
 }
