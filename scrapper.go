@@ -2,11 +2,13 @@ package main
 
 import (
 	"context"
+	"database/sql"
 	"log"
 	"sync"
 	"time"
 
 	"github.com/MdSadiqMd/RSS-Scraper/internal/database"
+	"github.com/google/uuid"
 )
 
 func startScrapping(
@@ -48,6 +50,32 @@ func startScrapping(
 				}
 
 				for _, item := range rssFeed.Channel.Items {
+					description := sql.NullString{}
+					if item.Description != "" {
+						description = sql.NullString{
+							String: item.Description,
+							Valid:  true,
+						}
+					}
+
+					pubAt, err := time.Parse(time.RFC1123, item.PubDate)
+					if err != nil {
+						log.Println("🗓️ Unable to parse Date: ", err)
+					}
+
+					_, err = db.CreatePost(context.Background(), database.CreatePostParams{
+						ID:          uuid.New(),
+						CreatedAt:   time.Now(),
+						UpdatedAt:   time.Now(),
+						Title:       item.Title,
+						Description: description,
+						PublishedAt: pubAt,
+						Url:         item.Link,
+						FeedID:      feed.ID,
+					})
+					if err != nil {
+						log.Println("🌋 Failed to Create Post: ", err)
+					}
 					log.Println("📰 Adding item: ", item.Title)
 				}
 				log.Printf("✅ Successfully scrapped %v posts", len(rssFeed.Channel.Items))
