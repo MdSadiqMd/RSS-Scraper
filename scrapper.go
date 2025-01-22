@@ -50,7 +50,7 @@ func startScrapping(
 				for _, item := range rssFeed.Channel.Items {
 					log.Println("📰 Adding item: ", item.Title)
 				}
-				log.Println("✅ Successfully scrapped feed of name: %v, which consists of %v posts: ", feed.Name, len(rssFeed.Channel.Items))
+				log.Printf("✅ Successfully scrapped %v posts", len(rssFeed.Channel.Items))
 			}(db, &wg, feed)
 		}
 		wg.Wait()
